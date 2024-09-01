@@ -10,9 +10,10 @@ module main
     reg [1:0] buf1, buf2; //Buffer for incoming bits; Vector size is 2 because the code rate is 1/2
     reg [1:0] buf_ov; //Flag to indicate the register - buf1 is full
     reg [1:0] pdata; //Encoded bits to be processed
-    reg [2:0] pstate, nstate;
+    reg [2:0] pstate, nstate; //Present and Next state of state diagram
     reg [3:0] ctstate, ntstate; //States in trellis structure
-    reg count; 
+    reg [1:0] count;
+    reg pvalid; 
 
     always @ (posedge clk, negedge rst)
     begin
@@ -41,23 +42,32 @@ module main
         end
     end
 
-    always @ (buf_ov, pstate)
+    always @ (pstate)
     begin
         case (pstate)
-            S0: if (!stop) 
+            S0: if (!stop)
                 begin
-                    if (count <= 1'b 1)
-                        pdata = buf_ov == 2'b 10 ? buf1 : ((buf_ov == 2'b 00 && count != 1'b 0) ? buf2 : pdata);
-                        //
-                    else
+                    if (pvalid == 1'b 1)
                     begin
-                        //Code if trellis structure is flooded
+                        //Code part - if the pdata reg has valid data  
                     end
                 end
-                else
-                begin
-                    //Code if stop bit is 1
-                end
         endcase
+    end
+
+    //Code part for storing the serial data in pdata reg every two cycles
+    always @ (buf_ov)
+    begin
+        if (buf_ov == 2'b 01)
+        begin
+            pdata = buf1;
+            pvalid = 1'b 1;
+        end
+        else if (buf_ov == 2'b 11)
+        begin
+            pdata = buf2;
+            pvalid = 1'b 1;
+        end
+
     end
 endmodule   
