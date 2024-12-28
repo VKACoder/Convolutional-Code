@@ -25,7 +25,7 @@ module BMU(
     //Calculate hamming distance - No. of bits that are same in rbits and abits
     always @ (abits)
     begin
-        exor_value = {abits[1] ^ rbits[1], abits[0] ^ rbits[0]};
+        exor_value = abits ^ rbits;
     end
     
     always @ (exor_value)
