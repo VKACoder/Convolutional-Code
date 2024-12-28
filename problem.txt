@@ -1,3 +1,0 @@
-Problems faced:
-1.P. With my initial idea which was to store the state no. along with current state address, the problem I faced was that I needed to access 4 different memory locations at the active clock edge, which I wasn't able to design.
-1.S. Instead of accessing four different locations on the same RAM, I designed four different RAMs for the trellis structure state. With this solution, I also thought that the range of decoding can also be increased.
