@@ -1,0 +1,75 @@
+  module TopModule(
+    input din,
+    input dinvalid,
+    input clk,
+    input rst,
+    output [7:0] dout,
+    output done
+    );
+    
+    parameter S0 = 0, S1 = 1, S2 = 2, S3 = 3, S4 = 4;
+    
+    wire [15:0] dbits; //Parallel data
+    reg parallelStart; //Start SIPO operation
+    wire parallelDone; //SIPO operation done
+    
+    reg [17:0] path0, path1, path2, path3; //Four possible paths 
+    reg [4:0] pm0, pm1, pm2, pm3; //Path metric value
+    reg [1:0] bm0, bm1, bm2, bm3; //Branch metric value
+    
+    reg [2:0] pstate, nstate;
+    
+    assign done = pstate == S1; //Decoding done
+    
+    //Serial to parallel data - 16 bits
+    SIPO m1(.dout(dbits), .done(parallelDone), .din(din), .start(parallelStart), .clk(clk), .rst(rst));    
+    
+    //Control logic with synchronous reset
+    always @ (posedge clk)
+    begin
+        if (!rst)
+        begin
+            //Reset values
+            parallelStart <= 1'b 0;
+            path0 <= 18'b 000000;
+            path1 <= 18'b 001001;
+            path2 <= 18'b 000010;
+            path3 <= 18'b 001011;
+            {pm0, bm0} <= 7'b 0;
+            {pm1, bm1} <= 7'b 0;
+            {pm2, bm2} <= 7'b 0;
+            {pm3, bm3} <= 7'b 0;
+        end
+        else
+        begin
+            case (pstate)
+                S0: 
+                begin
+                    if (dinvalid && !parallelDone)
+                    begin
+                        parallelStart <= 1'b 1;
+                        nstate <= S0;
+                    end
+                    if (parallelDone)
+                    begin
+                        parallelStart <= 1'b 0;
+                        //Calculation of path metric is wrong --update info
+                        pm0 <= (dbits[15:14] ^ 2'b 00) + (dbits[13:12] ^ 2'b 00);
+                        pm1 <= (dbits[15:14] ^ 2'b 11) + (dbits[13:12] ^ 2'b 11);
+                        pm2 <= (dbits[15:14] ^ 2'b 00) + (dbits[13:12] ^ 2'b 11);
+                        pm3 <= (dbits[15:14] ^ 2'b 11) + (dbits[13:12] ^ 2'b 00);
+                        nstate <= S1;
+                    end
+                end
+            endcase
+        end
+    end
+    
+    always @ (posedge clk)
+    begin
+        if (!rst)
+            pstate <= S0;
+        else
+            pstate <= nstate;
+    end
+endmodule    
