@@ -1,4 +1,4 @@
-  module TopModule(
+module TopModule(
     input din,
     input dinvalid,
     input clk,
@@ -15,14 +15,24 @@
     
     reg [17:0] path0, path1, path2, path3; //Four possible paths 
     reg [4:0] pm0, pm1, pm2, pm3; //Path metric value
-    reg [1:0] bm0, bm1, bm2, bm3; //Branch metric value
+    wire [1:0] bm0, bm1, bm2, bm3; //Branch metric value
+    
+    reg stage2;
+    wire [1:0] i1bm00, i1bm11, i2bm00, i2bm11;
+    wire [1:0] bm;
     
     reg [2:0] pstate, nstate;
     
     assign done = pstate == S1; //Decoding done
     
     //Serial to parallel data - 16 bits
-    SIPO m1(.dout(dbits), .done(parallelDone), .din(din), .start(parallelStart), .clk(clk), .rst(rst));    
+    SIPO sipo(.dout(dbits), .done(parallelDone), .din(din), .start(parallelStart), .clk(clk), .rst(rst));
+    BMU bmu100(2'b 00, 2'b 00, dbits[15:14], i1bm00);
+    BMU bmu111(2'b 00, 2'b 10, dbits[15:14], i1bm11);
+    BMU bmu200(2'b 00, 2'b 00, dbits[13:12], i2bm00);
+    BMU bmu211(2'b 00, 2'b 10, dbits[13:12], i2bm11);
+    
+    assign parallelDone = stage2 ? 1'b 0 : parallelDone;
     
     //Control logic with synchronous reset
     always @ (posedge clk)
@@ -35,10 +45,10 @@
             path1 <= 18'b 001001;
             path2 <= 18'b 000010;
             path3 <= 18'b 001011;
-            {pm0, bm0} <= 7'b 0;
-            {pm1, bm1} <= 7'b 0;
-            {pm2, bm2} <= 7'b 0;
-            {pm3, bm3} <= 7'b 0;
+            pm0 <= 5'b 0;
+            pm1 <= 5'b 0;
+            pm2 <= 5'b 0;
+            pm3 <= 5'b 0;
         end
         else
         begin
@@ -53,15 +63,22 @@
                     if (parallelDone)
                     begin
                         parallelStart <= 1'b 0;
-                        //Calculation of path metric is wrong --update info
-                        pm0 <= (dbits[15:14] ^ 2'b 00) + (dbits[13:12] ^ 2'b 00);
-                        pm1 <= (dbits[15:14] ^ 2'b 11) + (dbits[13:12] ^ 2'b 11);
-                        pm2 <= (dbits[15:14] ^ 2'b 00) + (dbits[13:12] ^ 2'b 11);
-                        pm3 <= (dbits[15:14] ^ 2'b 11) + (dbits[13:12] ^ 2'b 00);
                         nstate <= S1;
                     end
                 end
             endcase
+        end
+    end
+    
+    always @ (parallelDone)
+    begin
+        if (parallelDone)
+        begin
+            pm0 = pm0 + i1bm00 + i2bm00;
+            pm1 = pm1 + i1bm11 + i2bm11;
+            pm2 = pm2 + i1bm00 + i2bm11;
+            pm3 = pm3 + i1bm11 + i2bm00;
+            stage2 = 1'b 1;
         end
     end
     
@@ -72,4 +89,4 @@
         else
             pstate <= nstate;
     end
-endmodule    
+endmodule
