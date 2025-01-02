@@ -16,23 +16,20 @@ module TopModule(
     reg [17:0] path0, path1, path2, path3; //Four possible paths 
     reg [4:0] pm0, pm1, pm2, pm3; //Path metric value
     wire [1:0] bm0, bm1, bm2, bm3; //Branch metric value
-    
-    reg stage2;
+    reg bmuStart;
+    wire bmuDone00, bmuDone01, bmuDone10, bmuDone11;
     wire [1:0] i1bm00, i1bm11, i2bm00, i2bm11;
-    wire [1:0] bm;
     
     reg [2:0] pstate, nstate;
     
-    assign done = pstate == S1; //Decoding done
+    //assign done = pstate == S1; //Decoding done
     
     //Serial to parallel data - 16 bits
     SIPO sipo(.dout(dbits), .done(parallelDone), .din(din), .start(parallelStart), .clk(clk), .rst(rst));
-    BMU bmu100(2'b 00, 2'b 00, dbits[15:14], i1bm00);
-    BMU bmu111(2'b 00, 2'b 10, dbits[15:14], i1bm11);
-    BMU bmu200(2'b 00, 2'b 00, dbits[13:12], i2bm00);
-    BMU bmu211(2'b 00, 2'b 10, dbits[13:12], i2bm11);
-    
-    assign parallelDone = stage2 ? 1'b 0 : parallelDone;
+    BMU bmu100(2'b 00, 2'b 00, dbits[15:14], bmuStart, i1bm00, bmuDone00);
+    BMU bmu111(2'b 00, 2'b 10, dbits[15:14], bmuStart, i1bm11, bmuDone01);
+    BMU bmu200(2'b 00, 2'b 00, dbits[13:12], bmuStart, i2bm00, bmuDone10);
+    BMU bmu211(2'b 00, 2'b 10, dbits[13:12], bmuStart, i2bm11, bmuDone11);
     
     //Control logic with synchronous reset
     always @ (posedge clk)
@@ -49,6 +46,7 @@ module TopModule(
             pm1 <= 5'b 0;
             pm2 <= 5'b 0;
             pm3 <= 5'b 0;
+            bmuStart <= 1'b 0;
         end
         else
         begin
@@ -63,6 +61,7 @@ module TopModule(
                     if (parallelDone)
                     begin
                         parallelStart <= 1'b 0;
+                        bmuStart <= 1'b 1;
                         nstate <= S1;
                     end
                 end
@@ -70,15 +69,14 @@ module TopModule(
         end
     end
     
-    always @ (parallelDone)
+    always @ (parallelDone, bmuDone00, bmuDone01, bmuDone10, bmuDone11)
     begin
-        if (parallelDone)
+        if (bmuDone00 && bmuDone01 && bmuDone10 && bmuDone11 && !parallelDone)
         begin
-            pm0 = pm0 + i1bm00 + i2bm00;
-            pm1 = pm1 + i1bm11 + i2bm11;
-            pm2 = pm2 + i1bm00 + i2bm11;
-            pm3 = pm3 + i1bm11 + i2bm00;
-            stage2 = 1'b 1;
+            pm0 <= i1bm00 + i2bm00;
+            pm1 <= i1bm11 + i2bm11;
+            pm2 <= i1bm00 + i2bm11;
+            pm3 <= i1bm11 + i2bm00;
         end
     end
     
