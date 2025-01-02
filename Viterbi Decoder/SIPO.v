@@ -26,5 +26,7 @@ module SIPO(
             if (count == 4'b 1110)
                 done <= 1'b 1;
         end
+        if (start == 1'b 0)
+            done <= 1'b 0;
     end
 endmodule
