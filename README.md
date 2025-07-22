@@ -4,7 +4,7 @@
 
 This repo contains the verilog design of **(2,1,2) Convolutional encoder and viterbi based decoder.**
 
-## (n,k,m) Convolutional encoder:
+## (n,k,m) Convolutional Encoder:
 
 'n' stands for no. of output bits per time step,
 
