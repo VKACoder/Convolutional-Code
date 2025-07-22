@@ -1,5 +1,4 @@
 # Convolutional-Code
 
-(2,1,2) Convolutional Code with Viterbi decoding algorithm
-
-Work in progress
+/*Work in progress*/
+This repo contains the verilog design of (2,1,2) Convolutional encoder sn viterbi based decoder.
