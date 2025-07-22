@@ -12,4 +12,12 @@ This repo contains the verilog design of **(2,1,2) Convolutional encoder and vit
 
 'm' stands for length of the shift register. m = K -1, where 'K' is the constraint length which define how many input bits (current and previous) affect the encoder’s output at any time step.
 
-The code rate is given (k/n)
+The code rate is given (k/n).
+
+Depending on the value of 'n', n generator polynomials will be used to produce n output bits per time step.
+
+## (2,1,2) Convolutional encoder:
+
+n = 2, k = 1 and m = 2 => K = 3
+
+The n generator polynomials used are: GP<sub>0</sub> = 1 + x and GP<sub>1</sub> = 1 + x + x<sup>2</sup>.
