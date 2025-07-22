@@ -28,3 +28,4 @@ The encoder can be designed using FSM (used in the design) or simple shift regis
 
 ## Viterbi Decoder
 
+*To be updated*
