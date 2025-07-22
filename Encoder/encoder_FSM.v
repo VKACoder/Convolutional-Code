@@ -7,7 +7,7 @@ module encoder(input Din, input clk, input rst, output reg [1:0] Dout);
     begin
       if (!rst)
         begin
-          Dout <= 2'b xx;
+          Dout <= 2'b 00;
           pstate <= S0;
         end
       else
