@@ -1,7 +1,4 @@
-module encoder(Din, clk, rst, Dout);
-  
-  input Din, clk, rst;
-  output reg [1:0] Dout;
+module encoder(input Din, input clk, input rst, output reg [1:0] Dout);
   
   parameter S0 = 2'b 00, S1 = 2'b 01, S2 = 2'b 10, S3 = 2'b 11;
   reg [1:0] pstate, nstate;
