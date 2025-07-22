@@ -21,3 +21,5 @@ Depending on the value of 'n', n generator polynomials will be used to produce n
 n = 2, k = 1 and m = 2 => K = 3
 
 The n generator polynomials used are: GP<sub>0</sub> = 1 + x and GP<sub>1</sub> = 1 + x + x<sup>2</sup>.
+
+<img width="1014" height="572" alt="image" src="https://github.com/user-attachments/assets/197a96fe-d1c0-4278-b7b9-873a6e9c37b3" />
