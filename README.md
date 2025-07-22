@@ -22,7 +22,7 @@ n = 2, k = 1 and m = 2 => K = 3
 
 The n generator polynomials used are: GP<sub>0</sub> = 1 + x and GP<sub>1</sub> = 1 + x + x<sup>2</sup>.
 
-<img width="1014" height="572" alt="image" src="https://github.com/user-attachments/assets/197a96fe-d1c0-4278-b7b9-873a6e9c37b3" />
+<img width="1342" height="766" alt="image" src="https://github.com/user-attachments/assets/f8864978-d917-4f1f-bd0a-38da649a8a34" />
 
 The encoder can be designed using FSM or simple shift register and exor gates.
 
